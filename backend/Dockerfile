@@ -19,7 +19,7 @@ COPY . .
 RUN ls
 
 # add permission for entrypoint.sh
-RUN chmod +x entrypoint.sh
+#RUN chmod +x entrypoint.sh
 
 # run entrypoint.sh
-ENTRYPOINT ["/backend/entrypoint.sh"]
+#ENTRYPOINT ["/backend/entrypoint.sh"]
