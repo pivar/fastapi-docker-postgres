@@ -1,0 +1,1 @@
+CREATE DATABASE kalyadb_dev;

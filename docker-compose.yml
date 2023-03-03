@@ -1,0 +1,59 @@
+version: "3.4"
+services:
+  #restapi backend over python    
+  kalya-api:
+    container_name: kalya-api
+    build:
+      context: ./backend
+    command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    ports:
+      - "8001:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=dev
+      - DATABASE_URL=postgres://admin:testing@kalya-db:5432/kalyadb_dev
+
+    depends_on:
+      - kalya-db
+      
+  kalya-db:
+    build:
+      context: ./backend/db
+      dockerfile: Dockerfile
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testing}
+      PGDATA: /data/postgres
+    volumes:
+      - /backend/db/data:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+    
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - /backend/db/pgadmin:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    user: root
+    networks:
+      - postgres
+    restart: unless-stopped
+    
+networks:
+  postgres:
+    driver: bridge
+    
+volumes:
+    kalya-db:
+    pgadmin:
